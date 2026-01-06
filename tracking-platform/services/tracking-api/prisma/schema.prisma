@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum TrackingStatus {
+  CREATED
+  INFO_RECEIVED
+  IN_TRANSIT
+  OUT_FOR_DELIVERY
+  DELIVERED
+  EXCEPTION
+  RETURNED
+  UNKNOWN
+}
+
+model Users {
+  id                       String @id @default(uuid())
+  name                     String
+  email                    String @unique
+  password                 String
+}
+
+model Carrier {
+  id                       String @id @default(uuid())
+  slug                     String
+  name                     String
+  isActive                 Boolean
+
+  trackings                Tracking[]
+
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  @@map("carriers")
+}
+
+model Tracking {
+  id            String         @id @default(uuid())
+  carrierId     String
+  trackingCode  String
+
+  currentStatus TrackingStatus @default(CREATED)
+  lastEventAt   DateTime?
+  isActive      Boolean
+
+  carrier       Carrier        @relation(fields: [carrierId], references: [id], onDelete: Restrict)
+  events        TrackingEvent[]
+
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@unique([carrierId, trackingCode])
+  @@index([carrierId])
+  @@index([trackingCode])
+  @@index([lastEventAt])
+
+  @@map("trackings")
+}
+
+model TrackingEvent {
+  id                       String @id @default(uuid())
+  trackingId               String
+
+  eventAt                  DateTime
+  status                   TrackingStatus
+  description              String
+  location                 String?
+  rawPayload               Json?
+
+  eventHash                String
+  tracking                 Tracking @relation(fields: [trackingId], references: [id], onDelete: Cascade)
+  createdAt                DateTime @default(now())
+
+  @@unique([trackingId, eventHash])
+  @@index([trackingId, eventAt])
+
+  @@map("tracking_events")
+}

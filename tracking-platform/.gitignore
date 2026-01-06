@@ -1,0 +1,35 @@
+# Dependências
+node_modules/
+
+# Variáveis de Ambiente
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Opcional: Cache do npm
+.npm
+
+# Opcional: Cache do ESLint
+.eslintcache
+
+# Opcional: Histórico do REPL do Node
+.node_repl_history
+
+# Arquivos de build/dist (se aplicável, dependendo da sua configuração de build)
+dist/
+build/
+*.tsbuildinfo
+
+# Outros arquivos do sistema operacional ou IDE a ignorar (comuns, mas não específicos do Node)
+.DS_Store
+Thumbs.db
+.vscode/
+
+/src/generated/prisma
