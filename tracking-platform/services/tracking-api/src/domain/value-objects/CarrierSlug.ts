@@ -1,4 +1,4 @@
-import { DomainError } from "@domain/errors/DomainError";
+import { DomainError } from "@shared/errors/DomainError";
 
 export class CarrierSlug {
     private constructor(private readonly value: string) {}
