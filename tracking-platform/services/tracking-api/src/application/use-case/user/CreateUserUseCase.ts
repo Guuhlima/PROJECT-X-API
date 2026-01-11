@@ -10,7 +10,7 @@ import { IdGenerator } from "@application/ports/IdGenerator";
 import { DomainError } from "@shared/errors/DomainError";
 import { CreateUserInput, CreateUserOutput } from "@application/dtos/CreateUserDTO";
 
-export class CreateUser {
+export class CreateUserUseCase {
     constructor(
         private readonly userRepository: UserRepository,
         private readonly passwordHasher: PasswordHasher,
