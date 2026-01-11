@@ -10,6 +10,7 @@ export type UserProps = {
     email: Email;
     passwordHash: PasswordHash;
     active: boolean;
+    verified: boolean;
 }
 
 export class User {
@@ -28,7 +29,12 @@ export class User {
             email: input.email,
             passwordHash: input.passwordHash,
             active: input.active ?? true,
+            verified: false
         })
+    }
+
+    static restore(props: UserProps): User {
+        return new User(props);
     }
 
     get id(): string {
@@ -51,6 +57,10 @@ export class User {
         return this.props.active;
     }
 
+    get isVerified(): boolean {
+        return this.props.verified;
+    }
+
     deactivate(): void {
         if (!this.props.active) {
         throw new DomainError("User is already inactive.");
@@ -63,5 +73,12 @@ export class User {
         throw new DomainError("User is already active.");
         }
         this.props.active = true;
+    }
+
+    confirm(): void {
+        if (this.props.verified) {
+            throw new DomainError("User is already verified")
+        }
+        this.props.verified = true;
     }
 }

@@ -1,24 +1,26 @@
-import fastify from "fastify";
-import 'dotenv/config'
-
-import { trackingsRoutes } from "@infrastructure/http/fastify/routes/tracking";
+import "dotenv/config";
+import Fastify from "fastify";
+import fastifyCors from "@fastify/cors";
+import containerPlugin from "@infrastructure/http/plugins/container.plugin";
 import { userRoutes } from "@infrastructure/http/fastify/routes/users";
+import { trackingsRoutes } from "@infrastructure/http/fastify/routes/tracking";
 
 async function bootstrap() {
-    const app = fastify()
+  const app = Fastify({ logger: true });
 
-    app.get("/health", async () => ({ ok: true }))
+  await app.register(fastifyCors, {
+    origin: process.env.CORS_ORIGIN?.split(","),
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  });
 
-    await app.register(trackingsRoutes);
-    await app.register(userRoutes);
+  await app.register(containerPlugin);
+  await app.register(userRoutes, { prefix: "/api" });
+  await app.register(trackingsRoutes, { prefix: "/api" });
 
-    const PORT = Number(process.env.PORT)
-    app.listen({port: PORT}, () => {
-        console.log(`Server Running in ${PORT}`)
-    })
+  const port = Number(process.env.PORT);
+  const host = process.env.HOST;
+  await app.listen({ port, host });
 }
 
-bootstrap().catch((err) => {
-    console.error(err);
-    process.exit(1);
-});
+bootstrap();

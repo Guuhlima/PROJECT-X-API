@@ -8,6 +8,7 @@ import { PasswordHash } from "@domain/value-objects/User-objects/PasswordHash";
 import { PasswordHasher } from "@application/ports/PasswordHasher";
 import { IdGenerator } from "@application/ports/IdGenerator";
 import { DomainError } from "@shared/errors/DomainError";
+import { Notifier } from "@application/ports/Notifier";
 import { CreateUserInput, CreateUserOutput } from "@application/dtos/CreateUserDTO";
 
 export class CreateUserUseCase {
@@ -15,6 +16,7 @@ export class CreateUserUseCase {
         private readonly userRepository: UserRepository,
         private readonly passwordHasher: PasswordHasher,
         private readonly idGenerator: IdGenerator,
+        private readonly notifier?: Notifier,
     ) {}
 
     async execute(input: CreateUserInput): Promise<CreateUserOutput> {
@@ -33,6 +35,14 @@ export class CreateUserUseCase {
         const user = User.create({ id, name, email, passwordHash });
 
         const created = await this.userRepository.create(user);
+
+        this.notifier?.userCreated({
+            id: created.id,
+            name: created.name,
+            email: created.email
+        }).catch((err) => {
+            console.error('[CreateUserUseCase] notify error:', err);
+        })
 
         return {
             id: created.id,
