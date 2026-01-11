@@ -1,5 +1,5 @@
 import { FastifyInstance } from "fastify";
-import { CreateTrackingUseCase } from "@application/use-case/CreateTrackingUseCase"; 
+import { CreateTrackingUseCase } from "@application/use-case/tracking/CreateTrackingUseCase"; 
 import { PrismaCarrierRepository } from "../../../database/prisma/repositories/PrismaCarrierRepository";
 import { PrismaTrackingRepository } from "../../../database/prisma/repositories/PrismaTrackingRepository";
 

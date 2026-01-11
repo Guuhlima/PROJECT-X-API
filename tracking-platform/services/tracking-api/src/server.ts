@@ -2,15 +2,15 @@ import fastify from "fastify";
 import 'dotenv/config'
 
 import { trackingsRoutes } from "@infrastructure/http/fastify/routes/tracking";
+import { userRoutes } from "@infrastructure/http/fastify/routes/users";
 
 async function bootstrap() {
     const app = fastify()
 
     app.get("/health", async () => ({ ok: true }))
 
-    await app.register(trackingsRoutes)
-
-
+    await app.register(trackingsRoutes);
+    await app.register(userRoutes);
 
     const PORT = Number(process.env.PORT)
     app.listen({port: PORT}, () => {
