@@ -1,7 +1,7 @@
-import { CarrierRepository } from "../../domain/repositories/CarrierRepository";
-import { TrackingRepository } from "../../domain/repositories/TrackingRepository";
-import { CarrierSlug } from "../../domain/value-objects/CarrierSlug";
-import { TrackingCode } from "../../domain/value-objects/TrackingCode";
+import { CarrierRepository } from "../../domain/repositories/trackRepository/CarrierRepository";
+import { TrackingRepository } from "../../domain/repositories/trackRepository/TrackingRepository";
+import { CarrierSlug } from "../../domain/value-objects/tracking-objects/CarrierSlug";
+import { TrackingCode } from "../../domain/value-objects/tracking-objects/TrackingCode";
 import { CreateTrackingInput, CreateTrackingOutput } from "../dtos/CreateTrackingDTO";
 
 export class CreateTrackingUseCase {

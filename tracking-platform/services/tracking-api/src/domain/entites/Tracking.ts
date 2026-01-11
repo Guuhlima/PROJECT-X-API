@@ -1,5 +1,5 @@
-import { TrackingStatus } from "@domain/value-objects/TrackingStatus";
-import { TrackingCode } from "@domain/value-objects/TrackingCode";
+import { TrackingStatus } from "@domain/value-objects/tracking-objects/TrackingStatus";
+import { TrackingCode } from "@domain/value-objects/tracking-objects/TrackingCode";
 
 export type TrackingProps = {
     id: string;

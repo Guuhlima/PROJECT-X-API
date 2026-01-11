@@ -1,5 +1,5 @@
 import { Carrier } from "@domain/entites/Carrier";
-import { CarrierSlug } from "@domain/value-objects/CarrierSlug";
+import { CarrierSlug } from "@domain/value-objects/tracking-objects/CarrierSlug";
 
 export class CarrierMapper {
     static toDomain(row: {

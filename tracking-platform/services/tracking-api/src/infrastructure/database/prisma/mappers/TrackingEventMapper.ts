@@ -1,6 +1,6 @@
 import { TrackingEvent } from "@domain/entites/TrackingEvent"; 
-import { TrackingStatus } from "../../../../domain/value-objects/TrackingStatus";
-import { EventHash } from "../../../../domain/value-objects/EventHash";
+import { TrackingStatus } from "../../../../domain/value-objects/tracking-objects/TrackingStatus";
+import { EventHash } from "../../../../domain/value-objects/tracking-objects/EventHash";
 
 export class TrackingEventMapper {
   static toDomain(row: {

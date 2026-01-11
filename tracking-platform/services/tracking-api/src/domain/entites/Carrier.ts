@@ -1,4 +1,4 @@
-import { CarrierSlug } from "@domain/value-objects/CarrierSlug";
+import { CarrierSlug } from "@domain/value-objects/tracking-objects/CarrierSlug";
 
 export type CarrierProps = {
     id: string;

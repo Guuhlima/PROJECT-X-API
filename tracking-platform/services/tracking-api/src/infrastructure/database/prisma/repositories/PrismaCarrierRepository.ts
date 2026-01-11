@@ -1,6 +1,6 @@
-import { CarrierRepository } from "../../../../domain/repositories/CarrierRepository";
+import { CarrierRepository } from "../../../../domain/repositories/trackRepository/CarrierRepository";
 import { Carrier } from "@domain/entites/Carrier"; 
-import { CarrierSlug } from "../../../../domain/value-objects/CarrierSlug";
+import { CarrierSlug } from "../../../../domain/value-objects/tracking-objects/CarrierSlug";
 import { prisma } from "../client";
 import { CarrierMapper } from "../mappers/CarrierMapper";
 

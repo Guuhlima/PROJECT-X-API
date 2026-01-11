@@ -1,4 +1,4 @@
-import { TrackingEventRepository } from "../../../../domain/repositories/TrackingEventRepository";
+import { TrackingEventRepository } from "../../../../domain/repositories/trackRepository/TrackingEventRepository";
 import { TrackingEvent } from "@domain/entites/TrackingEvent";
 import { prisma } from "../client";
 import { TrackingEventMapper } from "../mappers/TrackingEventMapper";

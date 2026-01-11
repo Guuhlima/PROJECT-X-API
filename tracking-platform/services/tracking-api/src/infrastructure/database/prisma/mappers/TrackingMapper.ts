@@ -1,6 +1,6 @@
 import { Tracking } from "@domain/entites/Tracking";
-import { TrackingCode } from "@domain/value-objects/TrackingCode";
-import { TrackingStatus } from "@domain/value-objects/TrackingStatus";
+import { TrackingCode } from "@domain/value-objects/tracking-objects/TrackingCode";
+import { TrackingStatus } from "@domain/value-objects/tracking-objects/TrackingStatus";
 
 export class TrackingMapper {
   static toDomain(row: {

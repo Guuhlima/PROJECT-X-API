@@ -1,5 +1,5 @@
 import { Tracking } from "@domain/entites/Tracking";
-import { TrackingCode } from "@domain/value-objects/TrackingCode";
+import { TrackingCode } from "@domain/value-objects/tracking-objects/TrackingCode";
 
 export interface TrackingRepository {
     findById(id: string): Promise<Tracking | null>;

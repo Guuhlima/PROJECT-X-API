@@ -1,6 +1,6 @@
-import { TrackingRepository } from "../../../../domain/repositories/TrackingRepository";
+import { TrackingRepository } from "../../../../domain/repositories/trackRepository/TrackingRepository";
 import { Tracking } from "@domain/entites/Tracking";
-import { TrackingCode } from "../../../../domain/value-objects/TrackingCode";
+import { TrackingCode } from "../../../../domain/value-objects/tracking-objects/TrackingCode";
 import { prisma } from "../client";
 import { TrackingMapper } from "../mappers/TrackingMapper";
 
