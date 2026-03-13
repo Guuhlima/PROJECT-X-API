@@ -71,7 +71,7 @@ model Tracking {
 }
 
 model TrackingEvent {
-  id                       String @id @default(uuid())
+  id                       String   @id @default(uuid())
   trackingId               String
 
   eventAt                  DateTime
@@ -88,4 +88,33 @@ model TrackingEvent {
   @@index([trackingId, eventAt])
 
   @@map("tracking_events")
+}
+
+model WareHouse {
+  id                       String   @id @default(uuid())
+  name                     String
+  code                     String
+  address                  String
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  stock                    Stock[]
+
+  @@map("warehouse")
+}
+
+model Stock {
+  id                       String   @id @default(uuid())
+  warehouseId              String   
+  sku                      String
+  productName              String
+  quantity                 Int
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  wareHouse                WareHouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+
+  @@unique([warehouseId, sku])
+
+  @@map("stock")
 }
