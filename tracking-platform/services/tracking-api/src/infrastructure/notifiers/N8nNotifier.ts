@@ -1,4 +1,3 @@
-// src/infra/notifiers/N8nNotifier.ts
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
@@ -10,22 +9,29 @@ type JwtClaims = {
   name: string;
 };
 
+type N8nNotifierConfig = {
+  userCreatedWebhookUrl?: string;
+  passwordResetWebhookUrl?: string;
+  hmacSecret?: string;
+  jwtSecret?: string;
+  timeoutMs?: number;
+}
+
 export class N8nNotifier implements Notifier {
-  constructor(
-    private readonly webhookUrl: string,
-    private readonly hmacSecret?: string,
-    private readonly jwtSecret?: string,
-    private readonly timeoutMs = 4000
-  ) {}
+  private readonly timeoutMs: number;
+
+  constructor(private readonly config: N8nNotifierConfig) {
+    this.timeoutMs = config.timeoutMs ?? 4000;
+  }
 
   private signHmac(payload: unknown): string {
     const raw = JSON.stringify(payload);
-    return crypto.createHmac('sha256', this.hmacSecret!).update(raw).digest('hex');
+    return crypto.createHmac("sha256", this.config.hmacSecret!).update(raw).digest("hex");
   }
 
   private makeJwt(claims: JwtClaims): string {
-    if (!this.jwtSecret) throw new Error('Missing JWT secret');
-    return jwt.sign(claims, this.jwtSecret, {
+    if (!this.config.jwtSecret) throw new Error('Missing JWT secret');
+    return jwt.sign(claims, this.config.jwtSecret, {
       algorithm: 'HS256',
       expiresIn: '5m',
       issuer: 'track-products-api',
@@ -33,22 +39,54 @@ export class N8nNotifier implements Notifier {
     });
   }
 
-  async userCreated(input: { id: string; name: string; email: string }): Promise<void> {
-    const payload = { ...input, ts: Date.now() };
+  private async postWebhook(
+    url: string | undefined,
+    payload: unknown,
+    claims: JwtClaims
+  ): Promise<void> {
+    if (!url) return
 
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${this.makeJwt(claims)}`,
+    };
 
-    const token = this.makeJwt({ sub: input.id, email: input.email, name: input.name });
-    headers['Authorization'] = `Bearer ${token}`;
-
-    if (this.hmacSecret) {
-      headers['x-signature'] = this.signHmac(payload);
+    if (this.config.hmacSecret) {
+      headers["x-signature"] = this.signHmac(payload);
     }
 
     try {
-      await axios.post(this.webhookUrl, payload, { headers, timeout: this.timeoutMs });
+      await axios.post(url, payload, { headers, timeout: this.timeoutMs });
     } catch (e) {
-      console.error('[N8nNotifier] notify error:', (e as Error).message);
+      console.error("[N8nNotifier] notify error:", (e as Error).message)
     }
+  }
+
+  async userCreated(input: { id: string; name: string; email: string }): Promise<void> {
+    const payload = {
+      event: "user.created",
+      ...input,
+      ts: Date.now(),
+    };
+
+    await this.postWebhook(this.config.userCreatedWebhookUrl, payload, {
+      sub: input.id,
+      email: input.email,
+      name: input.name,
+    });
+  }
+
+  async passwordResetRequested(input: { userId: string; name: string; email: string; resetUrl: string; expiresAt: string; }): Promise<void> {
+    const payload = {
+      event: "user.password_reset_requested",
+      ...input,
+      ts: Date.now(),
+    };
+
+    await this.postWebhook(this.config.passwordResetWebhookUrl, payload, {
+      sub: input.userId,
+      email: input.email,
+      name: input.name
+    })
   }
 }

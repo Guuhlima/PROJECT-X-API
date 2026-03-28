@@ -25,12 +25,14 @@ enum TrackingStatus {
 }
 
 model Users {
-  id                       String @id @default(uuid())
-  name                     String
-  email                    String @unique
-  password                 String
-  active                   Boolean @default(true)
+  id                        String @id @default(uuid())
+  name                      String
+  email                     String @unique
+  password                  String
+  active                    Boolean @default(true)
   verified                  Boolean @default(false)
+
+  passwordResetTokens       PasswordResetToken[]
 }
 
 model Carrier {
@@ -117,4 +119,19 @@ model Stock {
   @@unique([warehouseId, sku])
 
   @@map("stock")
+}
+
+model PasswordResetToken {
+  id                       String   @id
+  userId                   String
+  tokenHash                String   @unique
+  expiresAt                DateTime
+  usedAt                   DateTime?
+  createdAt                DateTime @default(now())
+
+  user                     Users    @relation(fields: [userId], references: [id], onDelete:  Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
 }

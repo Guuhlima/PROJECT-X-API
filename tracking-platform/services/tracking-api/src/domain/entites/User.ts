@@ -81,4 +81,8 @@ export class User {
         }
         this.props.verified = true;
     }
+
+    updatePassword(passwordHash: PasswordHash): void {
+        this.props.passwordHash = passwordHash;
+    }
 }

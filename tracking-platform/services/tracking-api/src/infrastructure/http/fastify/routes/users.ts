@@ -19,6 +19,36 @@ export async function userRoutes(app: FastifyInstance) {
     }
   });
 
+    app.post("/forgot-password", async (req, reply) => {
+    const body = req.body as { email: string };
+
+    try {
+      const result = await app.useCases.requestPasswordReset.execute(body);
+      return reply.code(200).send(result);
+    } catch (err: any) {
+      req.log.error({ err }, "POST /forgot-password failed");
+      return reply.code(400).send({
+        error: "BAD_REQUEST",
+        message: err?.message ?? "Unknown Error",
+      });
+    }
+  });
+
+  app.post("/reset-password", async (req, reply) => {
+    const body = req.body as { token: string; password: string };
+
+    try {
+      const result = await app.useCases.resetPassword.execute(body);
+      return reply.code(200).send(result);
+    } catch (err: any) {
+      req.log.error({ err }, "POST /reset-password failed");
+      return reply.code(400).send({
+        error: "BAD_REQUEST",
+        message: err?.message ?? "Unknown Error",
+      });
+    }
+  });
+
   app.get("/user-validation", async (req, reply) => {
     const { userId } = req.query as { userId?: string };
 

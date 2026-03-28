@@ -37,3 +37,18 @@ export type Tracking = Prisma.TrackingModel
  * 
  */
 export type TrackingEvent = Prisma.TrackingEventModel
+/**
+ * Model WareHouse
+ * 
+ */
+export type WareHouse = Prisma.WareHouseModel
+/**
+ * Model Stock
+ * 
+ */
+export type Stock = Prisma.StockModel
+/**
+ * Model PasswordResetToken
+ * 
+ */
+export type PasswordResetToken = Prisma.PasswordResetTokenModel
