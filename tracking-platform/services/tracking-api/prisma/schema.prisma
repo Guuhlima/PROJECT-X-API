@@ -11,6 +11,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  schemas  = ["user", "inventory", "track"]
 }
 
 enum TrackingStatus {
@@ -22,6 +23,8 @@ enum TrackingStatus {
   EXCEPTION
   RETURNED
   UNKNOWN
+
+  @@schema("track")
 }
 
 model Users {
@@ -33,6 +36,8 @@ model Users {
   verified                  Boolean @default(false)
 
   passwordResetTokens       PasswordResetToken[]
+
+  @@schema("user")
 }
 
 model Carrier {
@@ -47,6 +52,7 @@ model Carrier {
   updatedAt                DateTime @updatedAt
 
   @@map("carriers")
+  @@schema("track")
 }
 
 model Tracking {
@@ -70,6 +76,7 @@ model Tracking {
   @@index([lastEventAt])
 
   @@map("trackings")
+  @@schema("track")
 }
 
 model TrackingEvent {
@@ -90,6 +97,7 @@ model TrackingEvent {
   @@index([trackingId, eventAt])
 
   @@map("tracking_events")
+  @@schema("track")
 }
 
 model WareHouse {
@@ -103,6 +111,7 @@ model WareHouse {
   stock                    Stock[]
 
   @@map("warehouse")
+  @@schema("inventory")
 }
 
 model Stock {
@@ -119,6 +128,7 @@ model Stock {
   @@unique([warehouseId, sku])
 
   @@map("stock")
+  @@schema("inventory")
 }
 
 model PasswordResetToken {
@@ -134,4 +144,5 @@ model PasswordResetToken {
   @@index([userId])
   @@index([expiresAt])
   @@map("password_reset_tokens")
+  @@schema("user")
 }

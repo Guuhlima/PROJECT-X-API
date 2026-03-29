@@ -1,6 +1,33 @@
 import { FastifyInstance } from "fastify";
 
 export async function userRoutes(app: FastifyInstance) {
+  app.post("/login", async (req, reply) => {
+    const body = req.body as { email: string; password: string };
+
+    try {
+      const result = await app.useCases.login.execute(body);
+      return reply.code(200).send(result);
+    } catch (err: any) {
+      req.log.error({ err }, "POST /login failed");
+
+      const message = err?.message ?? "UNKNOWN_ERROR";
+
+      if (message === "Invalid credentials.") {
+        return reply.code(401).send({ error: "INVALID_CREDENTIALS" });
+      }
+
+      if (message === "User is inactive.") {
+        return reply.code(403).send({ error: "USER_INACTIVE" });
+      }
+
+      if (message === "User is not verified.") {
+        return reply.code(403).send({ error: "USER_NOT_VERIFIED" });
+      }
+
+      return reply.code(400).send({ error: "BAD_REQUEST", message });
+    }
+  });
+
   app.post("/users", async (req, reply) => {
     const body = req.body as { name: string; email: string; password: string };
 
