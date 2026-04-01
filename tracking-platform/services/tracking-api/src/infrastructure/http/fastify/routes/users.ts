@@ -24,6 +24,13 @@ export async function userRoutes(app: FastifyInstance) {
         return reply.code(403).send({ error: "USER_NOT_VERIFIED" });
       }
 
+      if (message === "Missing auth JWT secret.") {
+        return reply.code(500).send({
+          error: "AUTH_CONFIG_ERROR",
+          message: "Authentication is not configured on the server.",
+        });
+      }
+
       return reply.code(400).send({ error: "BAD_REQUEST", message });
     }
   });
@@ -46,7 +53,7 @@ export async function userRoutes(app: FastifyInstance) {
     }
   });
 
-    app.post("/forgot-password", async (req, reply) => {
+  app.post("/forgot-password", async (req, reply) => {
     const body = req.body as { email: string };
 
     try {

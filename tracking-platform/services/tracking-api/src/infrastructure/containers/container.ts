@@ -19,6 +19,11 @@ import { RequestPasswordResetUseCase } from "@application/use-case/user/applicat
 import { ResetPasswordUseCase } from "@application/use-case/user/application/use-case/user/ResetPasswordUseCase";
 
 export function buildContainer() {
+  const parseNumberEnv = (value: string | undefined): number => {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 1000;
+  };
+
   const scryptAsync = promisify(scrypt);
 
   const passwordHasher: PasswordHasher = {
@@ -45,7 +50,6 @@ export function buildContainer() {
       if (!secret) throw new Error("Missing auth JWT secret.");
 
       return jwt.sign(payload, secret, {
-        subject: payload.sub,
         expiresIn: (process.env.AUTH_JWT_EXPIRES_IN ?? "7d") as SignOptions["expiresIn"],
       });
     },
@@ -55,12 +59,15 @@ export function buildContainer() {
   const carrierRepo = new PrismaCarrierRepository();
   const trackingRepo = new PrismaTrackingRepository();
   const passwordResetTokenRepo = new PrismaPasswordResetTokenRepository(prisma);
+  const userWebhookUrl = process.env.N8N_USER_WEBHOOK;
 
   const notifier = new N8nNotifier({
-    userCreatedWebhookUrl: process.env.N8N_USER_WEBHOOK,
-    passwordResetWebhookUrl: process.env.N8N_USER_WEBHOOK,
+    userCreatedWebhookUrl: userWebhookUrl,
     hmacSecret: process.env.N8N_WEBHOOK_SECRET,
     jwtSecret: process.env.N8N_JWT_SECRET,
+    timeoutMs: parseNumberEnv(process.env.N8N_WEBHOOK_TIMEOUT_MS),
+    maxAttempts: parseNumberEnv(process.env.N8N_WEBHOOK_MAX_ATTEMPTS),
+    retryDelayMs: parseNumberEnv(process.env.N8N_WEBHOOK_RETRY_DELAY_MS),
   });
 
   const createUser = new CreateUserUseCase(userRepo, passwordHasher, idGenerator, notifier);

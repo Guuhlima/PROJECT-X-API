@@ -1,4 +1,3 @@
-import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { Notifier } from '@application/ports/Notifier';
@@ -15,13 +14,27 @@ type N8nNotifierConfig = {
   hmacSecret?: string;
   jwtSecret?: string;
   timeoutMs?: number;
+  maxAttempts?: number;
+  retryDelayMs?: number;
 }
 
 export class N8nNotifier implements Notifier {
   private readonly timeoutMs: number;
+  private readonly maxAttempts: number;
+  private readonly retryDelayMs: number;
 
   constructor(private readonly config: N8nNotifierConfig) {
     this.timeoutMs = config.timeoutMs ?? 4000;
+    this.maxAttempts = Math.max(config.maxAttempts ?? 3, 1);
+    this.retryDelayMs = Math.max(config.retryDelayMs ?? 1000, 0);
+  }
+
+  private sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  private getEventName(payload: unknown): string | undefined {
+    return (payload as { event?: string }).event;
   }
 
   private signHmac(payload: unknown): string {
@@ -44,21 +57,55 @@ export class N8nNotifier implements Notifier {
     payload: unknown,
     claims: JwtClaims
   ): Promise<void> {
-    if (!url) return
+    if (!url) {
+      console.error("[N8nNotifier] webhook url is missing");
+      return;
+    }
 
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${this.makeJwt(claims)}`,
     };
+
+    if (this.config.jwtSecret) {
+      headers.Authorization = `Bearer ${this.makeJwt(claims)}`;
+    }
 
     if (this.config.hmacSecret) {
       headers["x-signature"] = this.signHmac(payload);
     }
 
-    try {
-      await axios.post(url, payload, { headers, timeout: this.timeoutMs });
-    } catch (e) {
-      console.error("[N8nNotifier] notify error:", (e as Error).message)
+    for (let attempt = 1; attempt <= this.maxAttempts; attempt++) {
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers,
+          body: JSON.stringify(payload),
+          signal: AbortSignal.timeout(this.timeoutMs),
+        });
+
+        if (!response.ok) {
+          const body = await response.text();
+          throw new Error(`HTTP ${response.status} ${response.statusText} - ${body}`);
+        }
+
+        return;
+      } catch (e) {
+        const message = e instanceof Error ? e.message : String(e);
+        const willRetry = attempt < this.maxAttempts;
+        const delayMs = this.retryDelayMs * attempt;
+
+        if (!willRetry) {
+          console.error("[N8nNotifier] giving up after retries", {
+            url,
+            event: this.getEventName(payload),
+            attempts: this.maxAttempts,
+            at: new Date().toISOString(),
+          });
+          return;
+        }
+
+        await this.sleep(delayMs);
+      }
     }
   }
 

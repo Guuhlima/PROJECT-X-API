@@ -42,16 +42,17 @@ export class RequestPasswordResetUseCase {
 
         const resetUrl = `${this.resetBaseUrl}?token=${rawToken}`;
 
-        this.notifier.passwordResetRequested({
-            userId: user.id,
-            name: user.name,
-            email: user.email,
-            resetUrl,
-            expiresAt: expiresAt.toISOString(),
-        })
-        .catch((err) => {
+        try {
+            await this.notifier.passwordResetRequested({
+                userId: user.id,
+                name: user.name,
+                email: user.email,
+                resetUrl,
+                expiresAt: expiresAt.toISOString(),
+            });
+        } catch (err) {
             console.error("[RequestPasswordResetUseCase] notify error:", err);
-        });
+        }
 
         return {
             message: "If the e-mail exists, reset instructions will be sent",
