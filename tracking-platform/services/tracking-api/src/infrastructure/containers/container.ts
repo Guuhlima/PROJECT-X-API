@@ -5,10 +5,14 @@ import { prisma } from "@infrastructure/database/prisma/client";
 import { PrismaUserRepository } from "@infrastructure/database/prisma/repositories/PrismaUserRepository";
 import { PrismaCarrierRepository } from "@infrastructure/database/prisma/repositories/PrismaCarrierRepository";
 import { PrismaTrackingRepository } from "@infrastructure/database/prisma/repositories/PrismaTrackingRepository";
+import { PrismaWarehouseRepository } from "@infrastructure/database/prisma/repositories/PrismaWarehouseRepository";
+import { PrismaStockRepository } from "@infrastructure/database/prisma/repositories/PrismaStockRepository";
 import { CreateUserUseCase } from "@application/use-case/user/application/use-case/user/CreateUserUseCase"; 
 import { ConfirmUserUseCase } from "@application/use-case/user/application/use-case/user/ConfirmUserUseCase"; 
 import { LoginUseCase } from "@application/use-case/user/application/use-case/user/LoginUseCase";
 import { CreateTrackingUseCase } from "@application/use-case/tracking/CreateTrackingUseCase";
+import { CreateWarehouseUseCase } from "@application/use-case/warehouse/CreateWarehouseUseCase";
+import { CreateStockUseCase } from "@application/use-case/warehouse/CreateStockUseCase";
 import { IdGenerator } from "@application/ports/IdGenerator";
 import { PasswordResetSessionManager, PasswordResetSessionPayload } from "@application/ports/PasswordResetSessionManager";
 import { PasswordHasher } from "@application/ports/PasswordHasher";
@@ -21,6 +25,7 @@ import { RequestPasswordResetUseCase } from "@application/use-case/user/applicat
 import { ResetPasswordUseCase } from "@application/use-case/user/application/use-case/user/ResetPasswordUseCase";
 import { ResetPasswordWithSessionUseCase } from "@application/use-case/user/application/use-case/user/ResetPasswordWithSessionUseCase";
 import { DomainError } from "@shared/errors/DomainError";
+import { userErrors } from "@shared/errors/user/UserErrors";
 
 export function buildContainer() {
   const parseNumberEnv = (value: string | undefined, fallback: number): number => {
@@ -57,7 +62,7 @@ export function buildContainer() {
   const tokenSigner: TokenSigner = {
     async sign(payload) {
       const secret = process.env.AUTH_JWT_SECRET;
-      if (!secret) throw new Error("Missing auth JWT secret.");
+      if (!secret) throw userErrors.authConfigError();
 
       return jwt.sign(payload, secret, {
         expiresIn: (process.env.AUTH_JWT_EXPIRES_IN ?? "7d") as SignOptions["expiresIn"],
@@ -70,7 +75,7 @@ export function buildContainer() {
     maxAgeSeconds: passwordResetSessionMaxAgeSeconds,
     async create(payload: PasswordResetSessionPayload): Promise<string> {
       if (!passwordResetSessionSecret) {
-        throw new Error("Missing password reset session secret.");
+        throw userErrors.passwordResetSessionConfigError();
       }
 
       return jwt.sign(payload, passwordResetSessionSecret, {
@@ -81,7 +86,7 @@ export function buildContainer() {
     },
     async verify(token: string): Promise<PasswordResetSessionPayload> {
       if (!passwordResetSessionSecret) {
-        throw new Error("Missing password reset session secret.");
+        throw userErrors.passwordResetSessionConfigError();
       }
 
       try {
@@ -91,7 +96,7 @@ export function buildContainer() {
         });
 
         if (typeof decoded === "string") {
-          throw new DomainError("Invalid reset session.");
+          throw userErrors.invalidResetSession();
         }
 
         if (
@@ -99,7 +104,7 @@ export function buildContainer() {
           typeof decoded.sub !== "string" ||
           typeof decoded.tokenId !== "string"
         ) {
-          throw new DomainError("Invalid reset session.");
+          throw userErrors.invalidResetSession();
         }
 
         return {
@@ -109,14 +114,14 @@ export function buildContainer() {
         };
       } catch (err) {
         if (err instanceof jwt.TokenExpiredError) {
-          throw new DomainError("Reset session expired.");
+          throw userErrors.resetSessionExpired();
         }
 
         if (err instanceof DomainError) {
           throw err;
         }
 
-        throw new DomainError("Invalid reset session.");
+        throw userErrors.invalidResetSession();
       }
     },
   };
@@ -124,6 +129,8 @@ export function buildContainer() {
   const userRepo = new PrismaUserRepository(prisma);
   const carrierRepo = new PrismaCarrierRepository();
   const trackingRepo = new PrismaTrackingRepository();
+  const warehouseRepo = new PrismaWarehouseRepository();
+  const stockRepo = new PrismaStockRepository();
   const passwordResetTokenRepo = new PrismaPasswordResetTokenRepository(prisma);
   const userWebhookUrl = process.env.N8N_USER_WEBHOOK;
   const passwordResetWebhookUrl =
@@ -165,6 +172,8 @@ export function buildContainer() {
     passwordHasher
   );
   const createTracking = new CreateTrackingUseCase(carrierRepo, trackingRepo);
+  const createWarehouse = new CreateWarehouseUseCase(warehouseRepo);
+  const createStock = new CreateStockUseCase(warehouseRepo, stockRepo);
 
   return {
     useCases: {
@@ -172,6 +181,8 @@ export function buildContainer() {
       confirmUser,
       login,
       createTracking,
+      createWarehouse,
+      createStock,
       createPasswordResetSession,
       requestPasswordReset,
       resetPassword,

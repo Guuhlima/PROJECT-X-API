@@ -4,8 +4,8 @@ import { UserRepository } from "@domain/repositories/userRepository/UserReposito
 import { Password } from "@domain/value-objects/User-objects/Password";
 import { PasswordHash } from "@domain/value-objects/User-objects/PasswordHash";
 import { UserId } from "@domain/value-objects/User-objects/UserId";
-import { DomainError } from "@shared/errors/DomainError";
 import { ResetPasswordOutput } from "@application/dtos/ResetPasswordDTO";
+import { userErrors } from "@shared/errors/user/UserErrors";
 
 type ResetPasswordWithSessionInput = {
   userId: string;
@@ -24,7 +24,7 @@ export class ResetPasswordWithSessionUseCase {
   ): Promise<ResetPasswordOutput> {
     const user = await this.userRepository.findById(UserId.create(input.userId));
     if (!user) {
-      throw new DomainError("User not found.");
+      throw userErrors.userNotFound();
     }
 
     const password = Password.create(input.password);

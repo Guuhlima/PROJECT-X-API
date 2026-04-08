@@ -3,7 +3,7 @@ import { PasswordResetSessionManager } from "@application/ports/PasswordResetSes
 import { PasswordResetTokenRepository } from "@domain/repositories/passwordResetTokenRepository/PasswordResetTokenRepository";
 import { UserRepository } from "@domain/repositories/userRepository/UserRepository";
 import { UserId } from "@domain/value-objects/User-objects/UserId";
-import { DomainError } from "@shared/errors/DomainError";
+import { userErrors } from "@shared/errors/user/UserErrors";
 
 type CreatePasswordResetSessionInput = {
   token: string;
@@ -28,20 +28,20 @@ export class CreatePasswordResetSessionUseCase {
     const resetToken = await this.passwordResetTokenRepository.findByTokenHash(tokenHash);
 
     if (!resetToken) {
-      throw new DomainError("Invalid token.");
+      throw userErrors.invalidToken();
     }
 
     if (resetToken.usedAt) {
-      throw new DomainError("Token already used.");
+      throw userErrors.tokenAlreadyUsed();
     }
 
     if (resetToken.expiresAt.getTime() < Date.now()) {
-      throw new DomainError("Token expired.");
+      throw userErrors.tokenExpired();
     }
 
     const user = await this.userRepository.findById(UserId.create(resetToken.userId));
     if (!user) {
-      throw new DomainError("User not found.");
+      throw userErrors.userNotFound();
     }
 
     const sessionToken = await this.passwordResetSessionManager.create({

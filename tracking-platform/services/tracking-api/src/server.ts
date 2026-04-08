@@ -4,6 +4,7 @@ import fastifyCors from "@fastify/cors";
 import containerPlugin from "@infrastructure/http/plugins/container.plugin";
 import { userRoutes } from "@infrastructure/http/fastify/routes/users";
 import { trackingsRoutes } from "@infrastructure/http/fastify/routes/tracking";
+import { inventoryRoutes } from "@infrastructure/http/fastify/routes/inventory";
 
 async function bootstrap() {
   const app = Fastify({ logger: true });
@@ -18,6 +19,7 @@ async function bootstrap() {
   await app.register(containerPlugin);
   await app.register(userRoutes, { prefix: "/api" });
   await app.register(trackingsRoutes, { prefix: "/api" });
+  await app.register(inventoryRoutes, { prefix: "/api" });
 
   const port = Number(process.env.PORT);
   const host = process.env.HOST;

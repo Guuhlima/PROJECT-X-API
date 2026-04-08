@@ -3,7 +3,7 @@ export type WarehouseProps = {
     name: string;
     code: string;
     address: string;
-    cratedAt: Date;
+    createdAt: Date;
     updatedAt: Date;
 }
 

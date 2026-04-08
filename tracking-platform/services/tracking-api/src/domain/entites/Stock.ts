@@ -1,3 +1,5 @@
+import { inventoryErrors } from "@shared/errors/inventory/InventoryErrors";
+
 export type StockProps = {
     id: string;
     warehouseId: string;
@@ -20,7 +22,7 @@ export class Stock {
 
     decrease(quantity: number) {
         if (this.props.quantity - quantity < 0) {
-            throw new Error("Invalid Quantity");
+            throw inventoryErrors.stockCannotBeNegative();
         }
 
         this.props.quantity -= quantity

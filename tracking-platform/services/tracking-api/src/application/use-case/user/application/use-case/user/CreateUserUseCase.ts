@@ -7,9 +7,9 @@ import { Password } from "@domain/value-objects/User-objects/Password";
 import { PasswordHash } from "@domain/value-objects/User-objects/PasswordHash";
 import { PasswordHasher } from "@application/ports/PasswordHasher";
 import { IdGenerator } from "@application/ports/IdGenerator";
-import { DomainError } from "@shared/errors/DomainError";
 import { Notifier } from "@application/ports/Notifier";
 import { CreateUserInput, CreateUserOutput } from "@application/dtos/CreateUserDTO";
+import { userErrors } from "@shared/errors/user/UserErrors";
 
 export class CreateUserUseCase {
     constructor(
@@ -25,7 +25,7 @@ export class CreateUserUseCase {
         const password = Password.create(input.password);
         
         const exists = await this.userRepository.findByEmail(email);
-        if (exists) throw new DomainError("Email is already in use.");
+        if (exists) throw userErrors.emailInUse();
 
         const id = UserId.create(this.idGenerator.newId());
 

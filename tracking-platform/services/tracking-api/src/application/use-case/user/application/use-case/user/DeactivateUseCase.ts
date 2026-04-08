@@ -1,6 +1,6 @@
 import { UserRepository } from "@domain/repositories/userRepository/UserRepository";
 import { UserId } from "@domain/value-objects/User-objects/UserId";
-import { DomainError } from "@shared/errors/DomainError";
+import { userErrors } from "@shared/errors/user/UserErrors";
 
 export class DeactivateUseCase {
     constructor(private readonly UserRepository: UserRepository) {}
@@ -9,7 +9,7 @@ export class DeactivateUseCase {
         const userId = UserId.create(userIdRaw);
 
         const user = await this.UserRepository.findById(userId);
-        if (!user) throw new DomainError("User not found");
+        if (!user) throw userErrors.userNotFound();
 
         user.deactivate();
 

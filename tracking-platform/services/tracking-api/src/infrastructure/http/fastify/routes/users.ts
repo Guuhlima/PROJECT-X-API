@@ -4,6 +4,8 @@ import {
   parseCookies,
   serializeCookie,
 } from "@infrastructure/http/cookies/passwordResetSessionCookie";
+import { sendAppError } from "@shared/errors/handleAppError";
+import { shouldClearResetSessionCookie } from "@shared/errors/user/UserErrors";
 
 export async function userRoutes(app: FastifyInstance) {
   const isSecureResetCookie =
@@ -19,29 +21,7 @@ export async function userRoutes(app: FastifyInstance) {
       return reply.code(200).send(result);
     } catch (err: any) {
       req.log.error({ err }, "POST /login failed");
-
-      const message = err?.message ?? "UNKNOWN_ERROR";
-
-      if (message === "Invalid credentials.") {
-        return reply.code(401).send({ error: "INVALID_CREDENTIALS" });
-      }
-
-      if (message === "User is inactive.") {
-        return reply.code(403).send({ error: "USER_INACTIVE" });
-      }
-
-      if (message === "User is not verified.") {
-        return reply.code(403).send({ error: "USER_NOT_VERIFIED" });
-      }
-
-      if (message === "Missing auth JWT secret.") {
-        return reply.code(500).send({
-          error: "AUTH_CONFIG_ERROR",
-          message: "Authentication is not configured on the server.",
-        });
-      }
-
-      return reply.code(400).send({ error: "BAD_REQUEST", message });
+      return sendAppError(reply, err);
     }
   });
 
@@ -53,13 +33,7 @@ export async function userRoutes(app: FastifyInstance) {
       return reply.code(201).send(result);
     } catch (err: any) {
       req.log.error({ err }, "POST /users failed");
-
-      const message = err?.message ?? "UNKNOWN_ERROR";
-      if (message === "Email is already in use.") {
-        return reply.code(409).send({ error: "EMAIL_IN_USE" });
-      }
-
-      return reply.code(400).send({ error: "BAD_REQUEST", message });
+      return sendAppError(reply, err);
     }
   });
 
@@ -71,10 +45,7 @@ export async function userRoutes(app: FastifyInstance) {
       return reply.code(200).send(result);
     } catch (err: any) {
       req.log.error({ err }, "POST /forgot-password failed");
-      return reply.code(400).send({
-        error: "BAD_REQUEST",
-        message: err?.message ?? "Unknown Error",
-      });
+      return sendAppError(reply, err);
     }
   });
 
@@ -97,7 +68,6 @@ export async function userRoutes(app: FastifyInstance) {
 
       return reply.code(200).send({ message: result.message });
     } catch (err: any) {
-      const message = err?.message ?? "Unknown Error";
       req.log.error({ err }, "POST /reset-password/session failed");
 
       reply.header(
@@ -109,22 +79,7 @@ export async function userRoutes(app: FastifyInstance) {
         )
       );
 
-      if (message === "Invalid token.") {
-        return reply.code(400).send({ error: "INVALID_TOKEN" });
-      }
-
-      if (message === "Token already used.") {
-        return reply.code(400).send({ error: "TOKEN_ALREADY_USED" });
-      }
-
-      if (message === "Token expired.") {
-        return reply.code(400).send({ error: "TOKEN_EXPIRED" });
-      }
-
-      return reply.code(400).send({
-        error: "BAD_REQUEST",
-        message,
-      });
+      return sendAppError(reply, err);
     }
   });
 
@@ -169,13 +124,9 @@ export async function userRoutes(app: FastifyInstance) {
 
       return reply.code(200).send(result);
     } catch (err: any) {
-      const message = err?.message ?? "Unknown Error";
       req.log.error({ err }, "POST /reset-password failed");
 
-      if (
-        message === "Invalid reset session." ||
-        message === "Reset session expired."
-      ) {
+      if (shouldClearResetSessionCookie(err)) {
         reply.header(
           "Set-Cookie",
           clearCookie(
@@ -186,34 +137,7 @@ export async function userRoutes(app: FastifyInstance) {
         );
       }
 
-      if (message === "Invalid token.") {
-        return reply.code(400).send({ error: "INVALID_TOKEN" });
-      }
-
-      if (message === "Token already used.") {
-        return reply.code(400).send({ error: "TOKEN_ALREADY_USED" });
-      }
-
-      if (message === "Token expired.") {
-        return reply.code(400).send({ error: "TOKEN_EXPIRED" });
-      }
-
-      if (message === "Invalid reset session.") {
-        return reply.code(401).send({ error: "RESET_SESSION_INVALID" });
-      }
-
-      if (message === "Reset session expired.") {
-        return reply.code(401).send({ error: "RESET_SESSION_EXPIRED" });
-      }
-
-      if (message === "User not found.") {
-        return reply.code(404).send({ error: "USER_NOT_FOUND" });
-      }
-
-      return reply.code(400).send({
-        error: "BAD_REQUEST",
-        message,
-      });
+      return sendAppError(reply, err);
     }
   });
 
@@ -230,7 +154,7 @@ export async function userRoutes(app: FastifyInstance) {
       return reply.code(200).send({ ok: true, message: "User Confirmed." });
     } catch (err: any) {
       req.log.error({ err }, "GET /user-validation failed" );
-      return reply.send(400).send({ error: "Bad request", message: err?.message ?? "Unknown Error" }); 
+      return sendAppError(reply, err);
     }
   })
 }

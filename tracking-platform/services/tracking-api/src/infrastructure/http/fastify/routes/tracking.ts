@@ -1,4 +1,5 @@
 import { FastifyInstance } from "fastify";
+import { sendAppError } from "@shared/errors/handleAppError";
 
 export async function trackingsRoutes(app: FastifyInstance) {
   app.post("/trackings", async (req, reply) => {
@@ -9,13 +10,7 @@ export async function trackingsRoutes(app: FastifyInstance) {
       return reply.code(201).send(result);
     } catch (err: any) {
       req.log.error({ err }, "POST /trackings failed");
-
-      const message = err?.message ?? "UNKNOWN_ERROR";
-      if (message === "CARRIER_NOT_FOUND") {
-        return reply.code(404).send({ error: "CARRIER_NOT_FOUND" });
-      }
-
-      return reply.code(400).send({ error: "BAD_REQUEST", message });
+      return sendAppError(reply, err);
     }
   });
 }

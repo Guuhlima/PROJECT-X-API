@@ -4,7 +4,7 @@ import { TokenSigner } from "@application/ports/TokenSigner";
 import { UserRepository } from "@domain/repositories/userRepository/UserRepository";
 import { Email } from "@domain/value-objects/User-objects/Email";
 import { Password } from "@domain/value-objects/User-objects/Password";
-import { DomainError } from "@shared/errors/DomainError";
+import { userErrors } from "@shared/errors/user/UserErrors";
 
 export class LoginUseCase {
   constructor(
@@ -20,7 +20,7 @@ export class LoginUseCase {
     const user = await this.userRepository.findByEmail(email);
 
     if (!user) {
-      throw new DomainError("Invalid credentials.");
+      throw userErrors.invalidCredentials();
     }
 
     const isPasswordValid = await this.passwordHasher.compare(
@@ -29,15 +29,15 @@ export class LoginUseCase {
     );
 
     if (!isPasswordValid) {
-      throw new DomainError("Invalid credentials.");
+      throw userErrors.invalidCredentials();
     }
 
     if (!user.isActive) {
-      throw new DomainError("User is inactive.");
+      throw userErrors.userInactive();
     }
 
     if (!user.isVerified) {
-      throw new DomainError("User is not verified.");
+      throw userErrors.userNotVerified();
     }
 
     const accessToken = await this.tokenSigner.sign({

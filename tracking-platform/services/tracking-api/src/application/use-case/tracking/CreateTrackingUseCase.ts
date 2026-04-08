@@ -3,6 +3,7 @@ import { TrackingRepository } from "@domain/repositories/trackRepository/Trackin
 import { CarrierSlug } from "@domain/value-objects/tracking-objects/CarrierSlug"; 
 import { TrackingCode } from "@domain/value-objects/tracking-objects/TrackingCode"; 
 import { CreateTrackingInput, CreateTrackingOutput } from "@application/dtos/CreateTrackingDTO";
+import { trackingErrors } from "@shared/errors/tracking/TrackingErrors";
 
 export class CreateTrackingUseCase {
   constructor(
@@ -16,7 +17,7 @@ export class CreateTrackingUseCase {
 
     const carrier = await this.carrierRepo.findBySlug(slug);
     if (!carrier) {
-      throw new Error("CARRIER_NOT_FOUND");
+      throw trackingErrors.carrierNotFound();
     }
 
     const existing = await this.trackingRepo.findByCarrierAndCode(carrier.props.id, code);
