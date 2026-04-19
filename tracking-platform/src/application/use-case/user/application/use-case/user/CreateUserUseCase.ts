@@ -8,7 +8,7 @@ import { PasswordHash } from "@domain/value-objects/User-objects/PasswordHash";
 import { PasswordHasher } from "@application/ports/PasswordHasher";
 import { IdGenerator } from "@application/ports/IdGenerator";
 import { Notifier } from "@application/ports/Notifier";
-import { CreateUserInput, CreateUserOutput } from "@application/dtos/CreateUserDTO";
+import { CreateUserInput, CreateUserOutput } from "@application/dtos/user/CreateUserDTO";
 import { userErrors } from "@shared/errors/user/UserErrors";
 
 export class CreateUserUseCase {

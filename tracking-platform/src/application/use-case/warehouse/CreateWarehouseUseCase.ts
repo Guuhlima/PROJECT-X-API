@@ -1,4 +1,4 @@
-import { CreateWarehouseInput, CreateWarehouseOutput } from "@application/dtos/CreateWarehouseDTO";
+import { CreateWarehouseInput, CreateWarehouseOutput } from "@application/dtos/warehouse/CreateWarehouseDTO";
 import { WarehouseRepository } from "@domain/repositories/wareHouseRepository/WarehouseRepository";
 import { inventoryErrors } from "@shared/errors/inventory/InventoryErrors";
 

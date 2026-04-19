@@ -1,4 +1,4 @@
-import { LoginInput, LoginOutput } from "@application/dtos/LoginDTO";
+import { LoginInput, LoginOutput } from "@application/dtos/user/LoginDTO";
 import { PasswordHasher } from "@application/ports/PasswordHasher";
 import { TokenSigner } from "@application/ports/TokenSigner";
 import { UserRepository } from "@domain/repositories/userRepository/UserRepository";

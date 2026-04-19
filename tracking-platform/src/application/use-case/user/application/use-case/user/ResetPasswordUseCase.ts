@@ -5,7 +5,7 @@ import { PasswordHasher } from "@application/ports/PasswordHasher";
 import { Password } from "@domain/value-objects/User-objects/Password";
 import { PasswordHash } from "@domain/value-objects/User-objects/PasswordHash";
 import { UserId } from "@domain/value-objects/User-objects/UserId";
-import { ResetPasswordInput, ResetPasswordOutput } from "@application/dtos/ResetPasswordDTO";
+import { ResetPasswordInput, ResetPasswordOutput } from "@application/dtos/user/ResetPasswordDTO";
 import { userErrors } from "@shared/errors/user/UserErrors";
 
 export class ResetPasswordUseCase {

@@ -2,7 +2,7 @@ import { CarrierRepository } from "@domain/repositories/trackRepository/CarrierR
 import { TrackingRepository } from "@domain/repositories/trackRepository/TrackingRepository"; 
 import { CarrierSlug } from "@domain/value-objects/tracking-objects/CarrierSlug"; 
 import { TrackingCode } from "@domain/value-objects/tracking-objects/TrackingCode"; 
-import { CreateTrackingInput, CreateTrackingOutput } from "@application/dtos/CreateTrackingDTO";
+import { CreateTrackingInput, CreateTrackingOutput } from "@application/dtos/tracking/CreateTrackingDTO";
 import { trackingErrors } from "@shared/errors/tracking/TrackingErrors";
 
 export class CreateTrackingUseCase {

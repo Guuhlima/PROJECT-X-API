@@ -4,7 +4,7 @@ import { UserRepository } from "@domain/repositories/userRepository/UserReposito
 import { Password } from "@domain/value-objects/User-objects/Password";
 import { PasswordHash } from "@domain/value-objects/User-objects/PasswordHash";
 import { UserId } from "@domain/value-objects/User-objects/UserId";
-import { ResetPasswordOutput } from "@application/dtos/ResetPasswordDTO";
+import { ResetPasswordOutput } from "@application/dtos/user/ResetPasswordDTO";
 import { userErrors } from "@shared/errors/user/UserErrors";
 
 type ResetPasswordWithSessionInput = {

@@ -1,4 +1,4 @@
-import { CreateStockInput, CreateStockOutput } from "@application/dtos/CreateStockDTO";
+import { CreateStockInput, CreateStockOutput } from "@application/dtos/stock/CreateStockDTO";
 import { StockRepository } from "@domain/repositories/stockRepository/StockRepository";
 import { WarehouseRepository } from "@domain/repositories/wareHouseRepository/WarehouseRepository";
 import { inventoryErrors } from "@shared/errors/inventory/InventoryErrors";

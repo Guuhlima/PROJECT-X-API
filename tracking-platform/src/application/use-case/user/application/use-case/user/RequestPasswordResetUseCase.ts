@@ -4,7 +4,7 @@ import { PasswordResetTokenRepository } from "@domain/repositories/passwordReset
 import { Email } from "@domain/value-objects/User-objects/Email"
 import { IdGenerator } from "@application/ports/IdGenerator"
 import { Notifier } from "@application/ports/Notifier"
-import { RequestPasswordResetOutput, RequestPasswordResetInput } from "@application/dtos/RequestPasswordResetDTO"   
+import { RequestPasswordResetOutput, RequestPasswordResetInput } from "@application/dtos/user/RequestPasswordResetDTO"   
 
 export class RequestPasswordResetUseCase {
     constructor(
